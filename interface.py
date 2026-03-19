@@ -8,6 +8,7 @@ from module1_claim_extraction import extract_claims
 from module2_claim_simplification import simplify_claims
 from module3_debatability_detection import classify_debatability
 from module4_webscraping import retrieve_evidence_chunks
+from module5_evidence_classification import classify_evidence_stance
 
 
 # ============================
@@ -16,7 +17,7 @@ from module4_webscraping import retrieve_evidence_chunks
 def process_text(paragraph: str):
 
     if not paragraph or not paragraph.strip():
-        yield "No input provided.", "", "", ""
+        yield "No input provided.", "", "", "", ""
         return
 
     # =====================================================
@@ -25,20 +26,24 @@ def process_text(paragraph: str):
     claims_list = extract_claims(paragraph)
 
     if not claims_list:
-        yield "No claims extracted.", "", "", ""
+        yield "No claims extracted.", "", "", "", ""
         return
 
     extracted_text = ""
     for item in claims_list:
         extracted_text += f"[{item['claim_id']}] {item['claim']}\n\n"
 
-    yield extracted_text.strip(), "", "", ""
+    yield extracted_text.strip(), "", "", "", ""
     time.sleep(0.5)
 
     # =====================================================
     # STEP 2: Claim Simplification
     # =====================================================
     simplified_list = simplify_claims(claims_list)
+
+    # ✅ Merge simplified claims into main list
+    for c, s in zip(claims_list, simplified_list):
+        c["simplified_claim"] = s["simplified_claim"]
 
     simplified_text = ""
     for item in simplified_list:
@@ -48,7 +53,7 @@ def process_text(paragraph: str):
             f"Simplified: {item['simplified_claim']}\n\n"
         )
 
-    yield extracted_text.strip(), simplified_text.strip(), "", ""
+    yield extracted_text.strip(), simplified_text.strip(), "", "", ""
     time.sleep(0.5)
 
     # =====================================================
@@ -68,12 +73,13 @@ def process_text(paragraph: str):
         extracted_text.strip(),
         simplified_text.strip(),
         debatability_text.strip(),
+        "",
         ""
     )
     time.sleep(0.5)
 
     # =====================================================
-    # STEP 4: PURE WEB RETRIEVAL (Module 4)
+    # STEP 4: Web Retrieval
     # =====================================================
     retrieved_results = retrieve_evidence_chunks(debatability_results)
 
@@ -105,7 +111,54 @@ def process_text(paragraph: str):
         extracted_text.strip(),
         simplified_text.strip(),
         debatability_text.strip(),
-        scraped_text.strip()
+        scraped_text.strip(),
+        ""
+    )
+    time.sleep(0.5)
+
+    # =====================================================
+    # STEP 5: Evidence Stance Classification (NEW)
+    # =====================================================
+    stance_results = classify_evidence_stance(retrieved_results)
+
+    stance_text = ""
+
+    for item in stance_results:
+
+        stance_text += f"\n========== Claim {item['claim_id']} ==========\n"
+        stance_text += f"Claim: {item['claim']}\n\n"
+
+        # ✅ PRO
+        stance_text += "✅ PRO (Supports Claim):\n"
+        if item["pro_evidence"]:
+            for e in item["pro_evidence"]:
+                stance_text += f"- {e['content'][:200]}...\n"
+                stance_text += f"  Source: {e['source']}\n"
+                stance_text += f"  URL: {e['url']}\n\n"
+        else:
+            stance_text += "No supporting evidence found.\n\n"
+
+        # ❌ AGAINST
+        stance_text += "❌ AGAINST (Opposes Claim):\n"
+        if item["against_evidence"]:
+            for e in item["against_evidence"]:
+                stance_text += f"- {e['content'][:200]}...\n"
+                stance_text += f"  Source: {e['source']}\n"
+                stance_text += f"  URL: {e['url']}\n\n"
+        else:
+            stance_text += "No opposing evidence found.\n\n"
+
+        stance_text += "=" * 80 + "\n"
+
+    if not stance_text.strip():
+        stance_text = "No stance classification available."
+
+    yield (
+        extracted_text.strip(),
+        simplified_text.strip(),
+        debatability_text.strip(),
+        scraped_text.strip(),
+        stance_text.strip()
     )
 
 
@@ -123,9 +176,10 @@ with gr.Blocks(title="Debate-Based Claim Analysis System") as demo:
         1️⃣ Claim Extraction  
         2️⃣ Claim Simplification  
         3️⃣ Debatability Classification  
-        4️⃣ Web Retrieval (Raw Evidence Chunks)
+        4️⃣ Web Retrieval  
+        5️⃣ Evidence Stance Classification (NEW ✅)
 
-        Evidence is retrieved but not yet classified as pro/against.
+        Now includes PRO vs AGAINST analysis.
         """
     )
 
@@ -141,6 +195,7 @@ with gr.Blocks(title="Debate-Based Claim Analysis System") as demo:
     simplified_output = gr.Textbox(label="Simplified Claims", lines=10)
     debatability_output = gr.Textbox(label="Debatability Classification", lines=8)
     scraped_output = gr.Textbox(label="Retrieved Evidence Chunks", lines=20)
+    stance_output = gr.Textbox(label="Pro vs Against Evidence", lines=20)  # ✅ NEW
 
     run_button.click(
         fn=process_text,
@@ -149,7 +204,8 @@ with gr.Blocks(title="Debate-Based Claim Analysis System") as demo:
             extracted_output,
             simplified_output,
             debatability_output,
-            scraped_output
+            scraped_output,
+            stance_output  # ✅ NEW OUTPUT
         ]
     )
 
