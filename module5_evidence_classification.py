@@ -3,6 +3,29 @@ import hashlib
 from typing import List, Dict
 from collections import defaultdict
 
+import torch
+from transformers import AutoTokenizer, AutoModel
+import numpy as np
+
+
+# ======================================================
+# DEVICE
+# ======================================================
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+# ======================================================
+# LOAD MINI LM (PYTORCH ONLY 🔥)
+# ======================================================
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModel.from_pretrained(MODEL_NAME)
+
+model.to(DEVICE)
+model.eval()
+
+
 # ======================================================
 # CONFIG
 # ======================================================
@@ -14,14 +37,14 @@ MAX_PER_SOURCE = 2
 MIN_RELEVANCE = 2
 MIN_ARGUMENT_SCORE = 1
 
+SEMANTIC_WEIGHT = 3.0
+
 
 # ======================================================
 # CLEAN
 # ======================================================
 def _clean(text: str) -> str:
-    if not text:
-        return ""
-    return re.sub(r"\s+", " ", text).strip()
+    return re.sub(r"\s+", " ", text).strip() if text else ""
 
 
 # ======================================================
@@ -37,12 +60,11 @@ GENERIC_PATTERNS = [
 
 
 def _is_generic(text: str) -> bool:
-    t = text.lower()
-    return any(p in t for p in GENERIC_PATTERNS)
+    return any(p in text.lower() for p in GENERIC_PATTERNS)
 
 
 # ======================================================
-# WEAK CONTENT FILTER 🔥
+# WEAK FILTER
 # ======================================================
 def _is_weak(text: str) -> bool:
     t = text.lower()
@@ -50,19 +72,11 @@ def _is_weak(text: str) -> bool:
     weak_patterns = [
         "experts say", "studies show",
         "it is believed", "it is expected",
-        "many believe", "there is concern"
+        "many believe"
     ]
 
     if any(p in t for p in weak_patterns):
-        has_number = bool(re.search(r"\d+", t))
-        strong_words = [
-            "replace", "eliminate", "create",
-            "increase", "decrease", "loss",
-            "growth", "automation"
-        ]
-        has_signal = any(w in t for w in strong_words)
-
-        if not has_number and not has_signal:
+        if not re.search(r"\d+", t):
             return True
 
     return False
@@ -71,7 +85,7 @@ def _is_weak(text: str) -> bool:
 # ======================================================
 # TOKENIZE
 # ======================================================
-def _tokenize(text: str) -> set:
+def _tokenize(text: str):
     return set(re.findall(r"\w+", text.lower()))
 
 
@@ -83,69 +97,46 @@ def _relevance(claim: str, text: str) -> int:
 
 
 # ======================================================
-# ARGUMENT SCORE
+# ARG SCORE
 # ======================================================
 ARG_KEYWORDS = [
     "job", "employment", "replace", "automation",
     "workers", "labor", "economy", "impact",
-    "increase", "decrease", "growth", "loss",
-    "risk", "benefit", "challenge", "disrupt"
+    "increase", "decrease", "growth", "loss"
 ]
 
 
 def _arg_score(text: str) -> int:
-    t = text.lower()
-    return sum(1 for w in ARG_KEYWORDS if w in t)
+    return sum(1 for w in ARG_KEYWORDS if w in text.lower())
 
 
 # ======================================================
-# STRONG SIGNAL SCORE 🔥
+# EMBEDDING (MEAN POOLING)
 # ======================================================
-def _strong_signal(text: str) -> int:
-    t = text.lower()
+def _embed(texts: List[str]):
 
-    signals = [
-        "replace", "eliminate", "displace",
-        "job loss", "mass unemployment",
-        "create jobs", "new jobs",
-        "augment", "assist", "complement"
-    ]
+    inputs = tokenizer(
+        texts,
+        padding=True,
+        truncation=True,
+        return_tensors="pt",
+        max_length=256
+    ).to(DEVICE)
 
-    return sum(1 for s in signals if s in t)
+    with torch.no_grad():
+        outputs = model(**inputs)
 
+    # mean pooling
+    embeddings = outputs.last_hidden_state.mean(dim=1)
 
-# ======================================================
-# FACT DENSITY 🔥
-# ======================================================
-def _fact_density(text: str) -> float:
-    words = text.split()
-    if not words:
-        return 0
-
-    numbers = len(re.findall(r"\d+", text))
-    return numbers / len(words)
+    return embeddings.cpu().numpy()
 
 
 # ======================================================
-# HASH (DEDUP)
+# COSINE SIMILARITY
 # ======================================================
-def _hash_text(text: str) -> str:
-    return hashlib.md5(text.encode("utf-8")).hexdigest()
-
-
-# ======================================================
-# VALIDATION
-# ======================================================
-def _is_valid(text: str) -> bool:
-    if not text:
-        return False
-    if len(text) < MIN_TEXT_LENGTH:
-        return False
-    if _is_generic(text):
-        return False
-    if _is_weak(text):
-        return False
-    return True
+def _cosine(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-9)
 
 
 # ======================================================
@@ -163,36 +154,35 @@ def filter_and_rank_evidence(retrieved_results: List[Dict]) -> List[Dict]:
         claim = _clean(item.get("claim", ""))
         chunks = item.get("evidence_chunks", [])
 
-        scored = []
+        candidates = []
         seen = set()
         source_count = defaultdict(int)
 
+        texts = []
+        meta = []
+
+        # =========================
+        # FILTER
+        # =========================
         for ch in chunks:
 
             text = _clean(ch.get("content", ""))
 
-            if not _is_valid(text):
+            if len(text) < MIN_TEXT_LENGTH:
+                continue
+
+            if _is_generic(text) or _is_weak(text):
                 continue
 
             rel = _relevance(claim, text)
             arg = _arg_score(text)
-            signal = _strong_signal(text)
-            density = _fact_density(text)
 
             if rel < MIN_RELEVANCE or arg < MIN_ARGUMENT_SCORE:
                 continue
 
-            # 🔥 FINAL SCORE
-            score = (
-                (1.5 * rel) +
-                (2.0 * arg) +
-                (2.5 * signal) +
-                (5.0 * density)
-            )
-
             text = text[:MAX_TEXT_LENGTH]
 
-            h = _hash_text(text)
+            h = hashlib.md5(text.encode()).hexdigest()
             if h in seen:
                 continue
 
@@ -203,43 +193,67 @@ def filter_and_rank_evidence(retrieved_results: List[Dict]) -> List[Dict]:
             seen.add(h)
             source_count[source] += 1
 
-            scored.append({
+            texts.append(text)
+
+            meta.append({
+                "text": text,
                 "source": source,
                 "url": ch.get("url", ""),
-                "content": text,
-                "score": round(score, 3)
+                "rel": rel,
+                "arg": arg
             })
+
+        # =========================
+        # SEMANTIC SIMILARITY 🔥
+        # =========================
+        if texts:
+            claim_emb = _embed([claim])[0]
+            text_embs = _embed(texts)
+
+            for i, m in enumerate(meta):
+
+                sim = _cosine(claim_emb, text_embs[i])
+
+                score = (
+                    (1.5 * m["rel"]) +
+                    (2.0 * m["arg"]) +
+                    (SEMANTIC_WEIGHT * sim)
+                )
+
+                candidates.append({
+                    "source": m["source"],
+                    "url": m["url"],
+                    "content": m["text"],
+                    "score": round(score, 4),
+                    "semantic": round(float(sim), 4)
+                })
 
         # =========================
         # SORT
         # =========================
-        scored.sort(key=lambda x: x["score"], reverse=True)
+        candidates.sort(key=lambda x: x["score"], reverse=True)
 
         # =========================
-        # SMART FALLBACK 🔥
+        # FALLBACK
         # =========================
-        if not scored:
+        if not candidates:
             fallback = []
-
-            for ch in chunks:
+            for ch in chunks[:TOP_K]:
                 text = _clean(ch.get("content", ""))
-                if len(text) > 80:
+                if len(text) > 50:
                     fallback.append({
                         "source": ch.get("source", ""),
                         "url": ch.get("url", ""),
                         "content": text[:MAX_TEXT_LENGTH],
-                        "score": 0.1
+                        "score": 0.1,
+                        "semantic": 0.0
                     })
-
-                if len(fallback) >= TOP_K:
-                    break
-
-            scored = fallback
+            candidates = fallback
 
         final_results.append({
             "claim_id": item.get("claim_id"),
             "claim": claim,
-            "filtered_evidence": scored[:TOP_K]
+            "filtered_evidence": candidates[:TOP_K]
         })
 
     return final_results
