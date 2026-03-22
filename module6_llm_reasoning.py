@@ -7,7 +7,7 @@ import re
 # ======================================================
 # CONFIG
 # ======================================================
-MODEL_PATH = r"F:\Project\GPU\NLP project\quantized\llama\Meta-Llama-3-8B-Instruct-Q4_K_M.gguf"
+MODEL_PATH = r"/home/aditya/Project/models/quantized/llama/Meta-Llama-3-8B-Instruct-Q4_K_M.gguf"
 
 N_CTX = 4096
 MAX_GENERATION_TOKENS = 900   # stable generation
