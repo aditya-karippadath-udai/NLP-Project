@@ -9,13 +9,21 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Clone llama.cpp
+# Set working directory
 WORKDIR /app
+
+# Clone llama.cpp
 RUN git clone https://github.com/ggerganov/llama.cpp.git
 
-# Build
+# Build using CMake
 WORKDIR /app/llama.cpp
-RUN make
+RUN cmake -B build
+RUN cmake --build build --config Release
 
-# Default command
-CMD ["./main", "-m", "/models/mistral.gguf", "-p", "Hello"]
+# Copy model INTO image (⚠️ heavy)
+WORKDIR /models
+COPY models/mistral-7b-instruct-v0.2.Q4_K_M.gguf /models/mistral.gguf
+
+# Run model
+WORKDIR /app/llama.cpp/build/bin
+CMD ["./llama-cli", "-m", "/models/mistral.gguf", "-p", "Explain NLP pipeline"]
