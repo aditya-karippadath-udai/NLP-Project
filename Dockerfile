@@ -1,6 +1,8 @@
 FROM ubuntu:22.04
 
-# Install dependencies
+# ============================
+# System dependencies
+# ============================
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -9,21 +11,52 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
+# ============================
 # Set working directory
+# ============================
 WORKDIR /app
 
-# Clone llama.cpp
+# ============================
+# Copy entire NLP project
+# (modules + interface.py)
+# ============================
+COPY . /app
+
+# ============================
+# Install Python dependencies
+# ============================
+RUN pip install --no-cache-dir \
+    gradio \
+    requests \
+    beautifulsoup4 \
+    lxml \
+    transformers \
+    torch \
+    sentencepiece \
+    accelerate
+
+# ============================
+# Clone & build llama.cpp
+# ============================
 RUN git clone https://github.com/ggerganov/llama.cpp.git
 
-# Build using CMake
 WORKDIR /app/llama.cpp
 RUN cmake -B build
 RUN cmake --build build --config Release
 
-# Copy model INTO image (⚠️ heavy)
+# ============================
+# Copy model into container
+# ============================
 WORKDIR /models
 COPY models/mistral-7b-instruct-v0.2.Q4_K_M.gguf /models/mistral.gguf
 
-# Run model
-WORKDIR /app/llama.cpp/build/bin
-CMD ["./llama-cli", "-m", "/models/mistral.gguf", "-p", "Explain NLP pipeline"]
+# ============================
+# Expose Gradio port
+# ============================
+EXPOSE 7860
+
+# ============================
+# Run Gradio app
+# ============================
+WORKDIR /app
+CMD ["python3", "interface.py"]
