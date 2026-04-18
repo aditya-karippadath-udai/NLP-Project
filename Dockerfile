@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     git \
     python3 \
     python3-pip \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================
@@ -17,8 +18,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # ============================
-# Copy entire NLP project
-# (modules + interface.py)
+# Copy project files
 # ============================
 COPY . /app
 
@@ -27,13 +27,31 @@ COPY . /app
 # ============================
 RUN pip install --no-cache-dir \
     gradio \
+    torch \
+    transformers \
+    sentencepiece \
+    accelerate \
+    nltk \
+    spacy \
+    wikipedia-api \
     requests \
     beautifulsoup4 \
     lxml \
-    transformers \
-    torch \
-    sentencepiece \
-    accelerate
+    ddgs \
+    numpy \
+    scikit-learn \
+    llama-cpp-python \
+    google-generativeai
+
+# ============================
+# Download NLP resources
+# ============================
+
+# NLTK data
+RUN python3 -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+
+# spaCy model
+RUN python3 -m spacy download en_core_web_sm
 
 # ============================
 # Clone & build llama.cpp
@@ -45,7 +63,7 @@ RUN cmake -B build
 RUN cmake --build build --config Release
 
 # ============================
-# Copy model into container
+# Copy GGUF model
 # ============================
 WORKDIR /models
 COPY models/mistral-7b-instruct-v0.2.Q4_K_M.gguf /models/mistral.gguf
@@ -56,7 +74,7 @@ COPY models/mistral-7b-instruct-v0.2.Q4_K_M.gguf /models/mistral.gguf
 EXPOSE 7860
 
 # ============================
-# Run Gradio app
+# Run Gradio interface
 # ============================
 WORKDIR /app
 CMD ["python3", "interface.py"]
