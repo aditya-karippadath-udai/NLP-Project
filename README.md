@@ -31,7 +31,7 @@ It is built for research, experimentation, and future expansion into argument mi
 ## 🛰️ Debate-Based NLP System Workflow
 
 <p align="center">
-  <img src="./assets/nlp-pipeline.svg" width="100%" />
+  <img src="./assets/nlp-pipeline.svg"/>
 </p>
 
 ## 🏗️ Architecture
