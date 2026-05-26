@@ -1,0 +1,339 @@
+<svg width="900" height="2050" viewBox="0 0 900 2050" xmlns="http://www.w3.org/2000/svg">
+
+<defs>
+
+  <!-- Background -->
+  <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#0d1117"/>
+    <stop offset="100%" stop-color="#111827"/>
+  </linearGradient>
+
+  <!-- Glow -->
+  <filter id="glow">
+    <feGaussianBlur stdDeviation="5" result="blur"/>
+    <feMerge>
+      <feMergeNode in="blur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+
+  <!-- Grid -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M40 0 L0 0 0 40"
+          fill="none"
+          stroke="#1f2937"
+          stroke-width="1"/>
+  </pattern>
+
+  <style>
+
+    .title {
+      fill: #f8fafc;
+      font-family: Inter, Arial;
+      font-size: 34px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      fill: #94a3b8;
+      font-family: Inter, Arial;
+      font-size: 16px;
+    }
+
+    .moduleTitle {
+      fill: white;
+      font-family: Inter, Arial;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .moduleText {
+      fill: #cbd5e1;
+      font-family: Inter, Arial;
+      font-size: 14px;
+    }
+
+    .box {
+      rx: 26;
+      stroke-width: 2.5;
+      filter: url(#glow);
+    }
+
+    .line {
+      stroke: #8b5cf6;
+      stroke-width: 5;
+      fill: none;
+      stroke-linecap: round;
+      opacity: 0.9;
+    }
+
+    .particle {
+      fill: #c084fc;
+      filter: url(#glow);
+    }
+
+    .pulse {
+      animation: pulse 3s infinite ease-in-out;
+      transform-origin: center;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.85;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.85;
+      }
+    }
+
+  </style>
+
+</defs>
+
+<!-- Background -->
+<rect width="900" height="2050" fill="url(#bg)" rx="30"/>
+<rect width="900" height="2050" fill="url(#grid)" opacity="0.25"/>
+
+<!-- HEADER -->
+
+<text x="70" y="80" class="title">
+Debate-Based NLP Architecture
+</text>
+
+<text x="70" y="120" class="subtitle">
+Hybrid AI Pipeline • Retrieval-Augmented Reasoning • Evidence Synthesis
+</text>
+
+<!-- MAIN FLOW LINE -->
+
+<path class="line" d="M450 180 V1830"/>
+
+<!-- FLOW PARTICLE -->
+
+<circle class="particle" r="8">
+  <animateMotion dur="6s" repeatCount="indefinite"
+    path="M450 180 V1830"/>
+</circle>
+
+<!-- MODULE 1 -->
+
+<g class="pulse">
+
+<rect class="box"
+      x="120"
+      y="180"
+      width="660"
+      height="170"
+      fill="#1e1b4b"
+      stroke="#8b5cf6"/>
+
+<text x="160" y="235" class="moduleTitle">
+Module 1 • Claim Extraction
+</text>
+
+<text x="160" y="280" class="moduleText">
+• FLAN-T5 prompt-based claim generation
+</text>
+
+<text x="160" y="310" class="moduleText">
+• Splits paragraph into atomic claims
+</text>
+
+<text x="160" y="340" class="moduleText">
+• Removes redundant statements
+</text>
+
+</g>
+
+<!-- MODULE 2 -->
+
+<g class="pulse">
+
+<rect class="box"
+      x="120"
+      y="430"
+      width="660"
+      height="210"
+      fill="#312e81"
+      stroke="#a78bfa"/>
+
+<text x="160" y="485" class="moduleTitle">
+Module 2 • Simplification + Enrichment
+</text>
+
+<text x="160" y="530" class="moduleText">
+• FLAN-T5 text simplification
+</text>
+
+<text x="160" y="560" class="moduleText">
+• SpaCy Named Entity Recognition
+</text>
+
+<text x="160" y="590" class="moduleText">
+• Wikipedia entity linking
+</text>
+
+<text x="160" y="620" class="moduleText">
+• Context-aware inline explanations
+</text>
+
+</g>
+
+<!-- MODULE 3 -->
+
+<g class="pulse">
+
+<rect class="box"
+      x="90"
+      y="730"
+      width="720"
+      height="340"
+      fill="#172554"
+      stroke="#60a5fa"/>
+
+<text x="140" y="790" class="moduleTitle">
+Module 3 • Debatability Classification
+</text>
+
+<text x="140" y="845" class="moduleText">
+• Layer 1 → Authoritative factual override
+</text>
+
+<text x="140" y="880" class="moduleText">
+• Layer 2 → Gemini 2.5 Flash semantic reasoning
+</text>
+
+<text x="140" y="915" class="moduleText">
+• Layer 3 → Rule-based heuristic fallback
+</text>
+
+<text x="140" y="950" class="moduleText">
+• Layer 4 → DistilBERT zero-shot classification
+</text>
+
+<text x="140" y="985" class="moduleText">
+• Hybrid validation architecture
+</text>
+
+<text x="140" y="1020" class="moduleText">
+• Debatable claims forwarded to retrieval pipeline
+</text>
+
+</g>
+
+<!-- MODULE 4 -->
+
+<g class="pulse">
+
+<rect class="box"
+      x="120"
+      y="1160"
+      width="660"
+      height="230"
+      fill="#083344"
+      stroke="#22d3ee"/>
+
+<text x="160" y="1220" class="moduleTitle">
+Module 4 • Evidence Retrieval
+</text>
+
+<text x="160" y="1270" class="moduleText">
+• DDGS query generation + web search
+</text>
+
+<text x="160" y="1300" class="moduleText">
+• HTML scraping using BeautifulSoup
+</text>
+
+<text x="160" y="1330" class="moduleText">
+• Boilerplate + noise removal
+</text>
+
+<text x="160" y="1360" class="moduleText">
+• Evidence chunk extraction + deduplication
+</text>
+
+</g>
+
+<!-- MODULE 5 -->
+
+<g class="pulse">
+
+<rect class="box"
+      x="120"
+      y="1480"
+      width="660"
+      height="210"
+      fill="#3f6212"
+      stroke="#84cc16"/>
+
+<text x="160" y="1540" class="moduleTitle">
+Module 5 • Evidence Filtering & Refinement
+</text>
+
+<text x="160" y="1590" class="moduleText">
+• Removes irrelevant / noisy evidence
+</text>
+
+<text x="160" y="1620" class="moduleText">
+• Relevance ranking + source filtering
+</text>
+
+<text x="160" y="1650" class="moduleText">
+• Keeps top-k high quality evidence snippets
+</text>
+
+</g>
+
+<!-- MODULE 6 -->
+
+<g class="pulse">
+
+<rect class="box"
+      x="120"
+      y="1780"
+      width="660"
+      height="220"
+      fill="#14532d"
+      stroke="#4ade80"/>
+
+<text x="160" y="1840" class="moduleTitle">
+Module 6 • Response Generation
+</text>
+
+<text x="160" y="1890" class="moduleText">
+• Supporting explanation generation
+</text>
+
+<text x="160" y="1920" class="moduleText">
+• Counterargument synthesis
+</text>
+
+<text x="160" y="1950" class="moduleText">
+• Balanced explainable final response
+</text>
+
+</g>
+
+<!-- UI PANEL -->
+
+<g class="pulse">
+
+<rect class="box"
+      x="240"
+      y="2020"
+      width="420"
+      height="90"
+      fill="#111827"
+      stroke="#c084fc"/>
+
+<text x="315" y="2075" class="moduleTitle">
+Interactive Gradio UI
+</text>
+
+</g>
+
+</svg>
