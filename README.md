@@ -28,6 +28,12 @@ Uses multiple reasoning layers for robustness
 
 It is built for research, experimentation, and future expansion into argument mining or balanced debate systems.
 
+## 🛰️ Debate-Based NLP System Workflow
+
+<p align="center">
+  <img src="./assets/nlp-pipeline.svg" width="100%">
+</p>
+
 ## 🏗️ Architecture
 ```
 Input Paragraph
@@ -855,6 +861,11 @@ Windows (CMD):
 ```
 gpuenv\Scripts\activate
 ```
+Linux(Terminal):
+```
+source gpuenv/bin/activate
+```
+
 #### 2️⃣ Install Dependencies
 ```
 pip install torch transformers nltk spacy wikipedia-api requests gradio google-genai

@@ -1,0 +1,289 @@
+<svg viewBox="0 0 900 1900" xmlns="http://www.w3.org/2000/svg">
+
+<style>
+
+.title {
+  fill: white;
+  font-size: 32px;
+  font-family: Arial;
+  font-weight: bold;
+  text-anchor: middle;
+}
+
+.subtitle {
+  fill: #94a3b8;
+  font-size: 15px;
+  font-family: Arial;
+  text-anchor: middle;
+}
+
+.module-title {
+  fill: white;
+  font-size: 20px;
+  font-family: Arial;
+  font-weight: bold;
+  text-anchor: middle;
+}
+
+.module-text {
+  fill: #cbd5e1;
+  font-size: 13px;
+  font-family: Arial;
+  text-anchor: middle;
+}
+
+.line {
+  stroke: #8b5cf6;
+  stroke-width: 4;
+}
+
+.packet {
+  fill: #c084fc;
+}
+
+</style>
+
+<!-- Background -->
+
+<rect width="900" height="1900" fill="#0d1117"/>
+
+<!-- Header -->
+
+<text x="450" y="70" class="title">
+Debate-Based NLP Architecture
+</text>
+
+<text x="450" y="105" class="subtitle">
+Hybrid AI Pipeline • Retrieval-Augmented Reasoning
+</text>
+
+<!-- Main Flow Line -->
+
+<line x1="450" y1="150" x2="450" y2="1750" class="line"/>
+
+<!-- Animated Packet -->
+
+<circle r="10" class="packet">
+
+  <animateMotion
+    dur="5s"
+    repeatCount="indefinite"
+    path="M450 150 V1750"/>
+
+  <animate
+    attributeName="opacity"
+    values="0.4;1;0.4"
+    dur="1.5s"
+    repeatCount="indefinite"/>
+
+</circle>
+
+<!-- Common Box Dimensions -->
+<!-- x=150 width=600 -->
+
+<!-- MODULE 1 -->
+
+<rect x="150" y="160" width="600" height="140"
+fill="#1e1b4b"
+stroke="#8b5cf6"
+stroke-width="2"
+rx="20">
+
+<animate attributeName="opacity"
+values="0.85;1;0.85"
+dur="3s"
+repeatCount="indefinite"/>
+
+</rect>
+
+<text x="450" y="210" class="module-title">
+Module 1 • Claim Extraction
+</text>
+
+<text x="450" y="245" class="module-text">
+• FLAN-T5 prompt-based generation
+</text>
+
+<text x="450" y="270" class="module-text">
+• Atomic claim extraction
+</text>
+
+<!-- MODULE 2 -->
+
+<rect x="150" y="360" width="600" height="170"
+fill="#312e81"
+stroke="#a78bfa"
+stroke-width="2"
+rx="20">
+
+<animate attributeName="opacity"
+values="0.85;1;0.85"
+dur="3.5s"
+repeatCount="indefinite"/>
+
+</rect>
+
+<text x="450" y="410" class="module-title">
+Module 2 • Simplification + Enrichment
+</text>
+
+<text x="450" y="445" class="module-text">
+• FLAN-T5 simplification
+</text>
+
+<text x="450" y="470" class="module-text">
+• SpaCy NER + Wikipedia linking
+</text>
+
+<text x="450" y="495" class="module-text">
+• Context-aware enrichment
+</text>
+
+<!-- MODULE 3 -->
+
+<rect x="150" y="610" width="600" height="290"
+fill="#172554"
+stroke="#60a5fa"
+stroke-width="2"
+rx="20">
+
+<animate attributeName="opacity"
+values="0.85;1;0.85"
+dur="4s"
+repeatCount="indefinite"/>
+
+</rect>
+
+<text x="450" y="665" class="module-title">
+Module 3 • Debatability Classification
+</text>
+
+<text x="450" y="710" class="module-text">
+• Factual override rules
+</text>
+
+<text x="450" y="745" class="module-text">
+• Gemini 2.5 Flash reasoning
+</text>
+
+<text x="450" y="780" class="module-text">
+• Rule-based fallback
+</text>
+
+<text x="450" y="815" class="module-text">
+• DistilBERT zero-shot classification
+</text>
+
+<text x="450" y="850" class="module-text">
+• Hybrid validation pipeline
+</text>
+
+<!-- MODULE 4 -->
+
+<rect x="150" y="980" width="600" height="190"
+fill="#083344"
+stroke="#22d3ee"
+stroke-width="2"
+rx="20">
+
+<animate attributeName="opacity"
+values="0.85;1;0.85"
+dur="4.5s"
+repeatCount="indefinite"/>
+
+</rect>
+
+<text x="450" y="1030" class="module-title">
+Module 4 • Evidence Retrieval
+</text>
+
+<text x="450" y="1070" class="module-text">
+• DDGS search + scraping
+</text>
+
+<text x="450" y="1100" class="module-text">
+• Boilerplate removal
+</text>
+
+<text x="450" y="1130" class="module-text">
+• Evidence chunk extraction
+</text>
+
+<!-- MODULE 5 -->
+
+<rect x="150" y="1240" width="600" height="170"
+fill="#3f6212"
+stroke="#84cc16"
+stroke-width="2"
+rx="20">
+
+<animate attributeName="opacity"
+values="0.85;1;0.85"
+dur="5s"
+repeatCount="indefinite"/>
+
+</rect>
+
+<text x="450" y="1290" class="module-title">
+Module 5 • Evidence Filtering
+</text>
+
+<text x="450" y="1330" class="module-text">
+• Ranking + relevance scoring
+</text>
+
+<text x="450" y="1360" class="module-text">
+• Noise filtering
+</text>
+
+<!-- MODULE 6 -->
+
+<rect x="150" y="1480" width="600" height="180"
+fill="#14532d"
+stroke="#4ade80"
+stroke-width="2"
+rx="20">
+
+<animate attributeName="opacity"
+values="0.85;1;0.85"
+dur="5.5s"
+repeatCount="indefinite"/>
+
+</rect>
+
+<text x="450" y="1530" class="module-title">
+Module 6 • Response Generation
+</text>
+
+<text x="450" y="1570" class="module-text">
+• Supporting explanations
+</text>
+
+<text x="450" y="1600" class="module-text">
+• Counterargument synthesis
+</text>
+
+<text x="450" y="1630" class="module-text">
+• Balanced explainable response
+</text>
+
+<!-- UI -->
+
+<rect x="150" y="1740" width="600" height="90"
+fill="#111827"
+stroke="#c084fc"
+stroke-width="2"
+rx="20">
+
+<animate attributeName="opacity"
+values="0.85;1;0.85"
+dur="6s"
+repeatCount="indefinite"/>
+
+</rect>
+
+<text x="450" y="1795" class="module-title">
+Interactive Gradio UI
+</text>
+
+</svg>
